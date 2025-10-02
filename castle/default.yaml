@@ -1,0 +1,96 @@
+# === Required data-dependent dims (edit these to match your tensors) ===
+soil_in: 8          # number of features in the soil stream  (Ds)
+indoor_in: 8        # number of features in the indoor stream (Di)
+weather_in: 8       # number of features in the weather stream (Dw)
+core_dim: 4         # number of features in the daily tabular/crop stream (Dc)
+anchor_dim: 5       # must be 5 for [y_t, y_p1, y_p7, d1, d7]
+k_hist: 6           # length for regime adapter defaults (also used for K if not set)
+device: "cpu"       # "cuda" or "cpu"
+
+# ---- time scales ----
+use_multi_timescale: true
+mts_l2_pull: 1.0e-2
+ts_init_seconds: 3600.0
+
+# ---- DecayAware ----
+soil_noise: 0.05
+indoor_noise: 0.05
+weather_noise: 0.05
+
+# ---- Encoders (reduced capacity + more dropout) ----
+soil_hidden: 64
+proj_dim: 24
+tab_hidden: 64
+tab_dropout: 0.25
+
+# ---- AnchorCreator ----
+anchor_temperature: 1.15
+anchor_shock_gain: 1.80
+anchor_tau_init: 3.0
+anchor_tau_min: 0.001
+anchor_tau_max: 1000.0
+anchor_drop_p: 0.30   # not used; kept for compatibility
+
+# ---- VolatilityAnalyzer ----
+vol_dim: 12
+vol_dropout: 0.25
+vol_z_clip: 6.0
+vol_eps: 1.0e-8
+vol_hidden: 32
+vol_rel_hidden: 32
+vol_rel_min_conf: 0.03
+vol_leash_blend: 0.35
+
+# ---- RegimeAdapter ----
+regime_K: 6
+regime_a_span: 0.25
+regime_lambda_max: 0.80
+regime_lambda_init: 0.20
+regime_gate_temp: 1.0
+regime_gate_entropy_reg: 0.0
+regime_use_cond_norm: true
+
+# ---- Fusion ----
+fusion_proj: 32
+fusion_mix: 0.70
+fusion_temp: 1.0
+fusion_topk: 2
+fusion_dropout: 0.30
+fusion_gain_max: 0.10
+
+# ---- per-stream cond ----
+seqstats_last_k: 12
+
+# ---- Head: CONSENSUS TRUST ----
+head_hidden: 24
+head_use_hetero: true
+head_dropout: 0.60
+head_tau_core: 0.90
+head_tau_reg: 0.90
+head_reg_gain_max: 0.10
+head_reg_bias_max: 0.25
+head_delta_clip: 6.0
+head_core_inflate: 0.60
+head_reg_inflate: 0.60
+head_core_conf_gain: 0.50
+head_reg_shock_gain: 0.50
+
+# ---- runtime toggles ----
+enable_topk_after: 8
+enable_memory_after: -1
+
+# ---- residual reliability ----
+use_resid_rel: true
+resid_rel_k: 7
+resid_rel_gain: 0.35
+resid_rel_clip: 6.0
+
+# ---- regularizers (read by your training loop; not used inside modules) ----
+adapter_reg_lambda: 5.0e-3
+va_reg_lambda: 5.0e-3
+l2_core_lambda: 3.0e-4
+jacobian_lambda: 0.0
+
+# ---- training-time knobs (external loop can consume) ----
+missup_p: 0.20
+ema_decay: 0.995
